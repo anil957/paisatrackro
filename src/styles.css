@@ -1,0 +1,6 @@
+/* You can add global styles to this file, and also import other style files */
+.c3-tooltip-container {
+    background-color: #ccc;
+    border: solid 1px black;
+    padding: 20px;
+}

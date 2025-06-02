@@ -1,0 +1,148 @@
+<!-- 
+<div id="chart">
+  <button (click)="chart()"></button>
+</div> -->
+<app-chart> </app-chart>
+
+<div class="container-fluid">
+  <!-- Content Area (Table) -->
+
+  <div class="content-area" [class.sidebar-open]="filter">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+      <h4 class="text-success">Total Invested: {{ totalinvest }}</h4>
+      <div><h2 class="text-success">paisaTrackro</h2></div>
+      <div>
+        <button class="btn btn-primary me-2" (click)="toggleFilter()">Toggle Filter</button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Item</button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Date</th>
+            <th>Price</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredItems">
+            <td>{{ item.item }}</td>
+            <td>{{ item.date | date }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.category }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sidebar (Filters) -->
+  <div class="sidebar" [class.open]="filter">
+    <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+      <h5 class="mb-0">Filter by Category</h5>
+      <button class="btn btn-sm btn-light" (click)="toggleFilter()">&times;</button>
+    </div>
+
+    <div class="p-3">
+      <div *ngFor="let cat of categories" class="form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="{{cat}}"
+          (change)="onCategoryChange($event, cat)"
+          [checked]="selectedCategories.includes(cat)"
+        />
+        <label class="form-check-label" for="{{cat}}">{{ cat }}</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Add Item -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="addItem()">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add Item</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="item" class="form-label">Item</label>
+            <input
+              type="text"
+              formControlName="item"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['item'].errors }"
+            />
+            <div *ngIf="submitted && f['item'].errors" class="invalid-feedback">
+              Item is required
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="date" class="form-label">Date</label>
+            <input
+              type="date"
+              formControlName="date"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['date'].errors }"
+            />
+            <div *ngIf="submitted && f['date'].errors" class="invalid-feedback">
+              Date is required
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input
+              type="number"
+              formControlName="price"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['price'].errors }"
+            />
+            <div *ngIf="submitted && f['price'].errors" class="invalid-feedback">
+              Price is required
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <input
+              type="text"
+              formControlName="category"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['category'].errors }"
+            />
+            <div *ngIf="submitted && f['category'].errors" class="invalid-feedback">
+              Category is required
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Add</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+            (click)="onReset()"
+          >
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

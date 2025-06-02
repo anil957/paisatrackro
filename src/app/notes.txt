@@ -1,0 +1,647 @@
+
+
+/*
+<script>
+    const form = document.getElementById('expenseForm');
+    const tableBody = document.getElementById('expenseTableBody');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('itemName').value;
+      const date = document.getElementById('itemDate').value;
+      const price = document.getElementById('itemPrice').value;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${name}</td>
+        <td>${date}</td>
+        <td>₹${parseFloat(price).toFixed(2)}</td>
+      `;
+
+      tableBody.appendChild(row);
+
+      // Clear the form
+      form.reset();
+    });
+  </script>
+
+*/
+
+app.compoent.ts
+...........
+
+import { Component, OnInit } from '@angular/core';
+import { ItemsService } from './service/items.service';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import {item} from './model/items'
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
+  filter=false;
+  title = 'paisatracko';
+  items: item[] = [];
+  fiterItems:[]=[];
+  filetedItems:item[]=[]
+  submitted = false;
+  totalinvest: number = 0;
+  form: FormGroup = new FormGroup(
+    {
+      item: new FormControl('',),
+      date: new FormControl('',),
+      price: new FormControl('',),
+      category: new FormControl('',)
+    }
+  )
+
+
+  constructor(private item: ItemsService, private formBuilder: FormBuilder, private route:Router) {
+
+  }
+  ngOnInit(): void {
+    this.form = this.formBuilder.group(
+      {
+        item: ['', Validators.required],
+        date: ['', Validators.required],
+        price: ['', Validators.required],
+        category: ['', Validators.required]
+
+      }
+    )
+  
+
+
+    this.getItems();
+  }
+
+  get f(): { [key: string]: AbstractControl } {
+    return this.form.controls;
+  }
+
+  addItem() {
+    this.submitted = true;
+    if (this.form.invalid) {
+      return;
+    }
+
+    console.log(JSON.stringify(this.form.value, null, 2));
+
+     this.item.totalItems(this.form.value);
+
+    this.totalinvest += +this.form.value['price']
+    console.log(this.totalinvest)
+  this.route.navigateByUrl("/");
+
+  }
+
+  getItems(){
+    // if(this.filter){
+    //   this.items=this.items.filter(s=>s.category==='travel')
+    
+    // }
+    this.items =  this.item.getItem();
+  }
+
+  onReset() {
+    this.form.reset();
+  }
+
+
+  getItemsByCategory(){
+    this.filter=true;
+ 
+ 
+  }
+
+}
+
+app.compoenent.html
+<!-- 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Expenses Tracker</title>
+  <style>
+    
+  </style>
+</head>
+<body>
+
+  <h2>Daily Expenses Tracker</h2>
+
+  <form >
+    <input type="text" id="itemName" placeholder="Item Name" required>
+    <input type="date" id="itemDate" required>
+    <input type="number" id="itemPrice" placeholder="Price (₹)" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item Name</th>
+        <th>Date</th>
+        <th>Price (₹)</th>
+      </tr>
+    </thead>
+    <tbody id="expenseTableBody">
+      
+    </tbody>
+  </table>
+
+  
+</body>
+</html> -->
+
+<div>
+  <h4 class="text-success">Amount  : {{totalinvest}}</h4>
+</div>
+
+
+
+<div class="row">
+  <div class="col-lg-3">
+<button type="button" class="btn btn-primary mb-5 mt-2 " data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Add
+</button>
+</div>
+<div class="col-lg-3">
+
+</div>
+
+<div class="col-lg-3">
+reset
+</div>
+
+<div class="col-lg-3">
+serach
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+<div class="add-item">
+  <form [formGroup]="form" (ngSubmit)="addItem()">
+    <div class="form-group">
+      <label for="item">item</label>
+      <input
+        type="text"
+        formControlName="item"
+        class="form-control"
+        [ngClass]="{ 'is-invalid': submitted && f['item'].errors }"
+      />
+      <div *ngIf="submitted && f['item'].errors" class="invalid-feedback">
+        <div *ngIf="f['item'].errors['required']">item is required</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      
+      <label for="date">date</label>
+      <input
+        type="date"
+        formControlName="date"
+        class="form-control"
+        [ngClass]="{ 'is-invalid': submitted && f['date'].errors }"
+      />
+      <div *ngIf="submitted && f['date'].errors" class="invalid-feedback">
+        <div *ngIf="f['date'].errors['date']">date is required</div>
+        
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="price">price</label>
+      <input
+        type="text"
+        formControlName="price"
+        class="form-control"
+        [ngClass]="{ 'is-invalid': submitted && f['price'].errors }"
+      />
+      <div *ngIf="submitted && f['price'].errors" class="invalid-feedback">
+        <div *ngIf="f['price'].errors['required']">price is required</div>
+        
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="category">categroy</label>
+      <input type="text" formControlName="category" class="form-control"
+      [ngClass]="{'is-invalid':submitted&&f['category'].errors}"/>
+      <div *ngIf="submitted && f['price'].errors" class="invalid-feedback">
+        <div *ngIf="f['price'].errors['required']">category requiredd</div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Add</button>
+      <button
+        type="button"
+        (click)="onReset()"
+        class="btn btn-warning float-right"
+      >
+        Reset
+      </button>
+    </div>
+  </form>
+</div>
+
+
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        
+      </div> -->
+    </div>
+  </div>
+</div>
+
+<div>
+  <table class="table  text-center">
+    
+    <thead>
+    <th>items</th>
+    <th>date</th>
+    <th>price</th>
+    <th>category</th>
+    </thead>
+    <tbody >
+      <tr *ngFor="let item of items">
+        <td>{{item.item}}</td>
+        <td>{{item.date |date}}</td>
+        <td>{{item.price}}</td>
+        <td>{{item.category}}</td>
+
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+app.compoenent.ts
+/*body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    h2 {
+      text-align: center;
+    }
+    form {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"] {
+      padding: 5px;
+      width: 150px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+
+    p {
+  font-family: Lato;
+}
+
+#root {
+  padding: 30px;
+}
+
+.add-item {
+  max-width: 350px;
+  margin: auto;
+}
+*/
+
+.add-item {
+  max-width: 500px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+input[type='text'],
+input[type='date'],
+input[type='number'],
+input.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+  font-size: 14px;
+}
+
+input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.btn {
+  padding: 10px 18px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.float-right {
+  float: right;
+}
+
+@media (max-width: 600px) {
+  .add-item {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .float-right {
+    float: none;
+  }
+}
+
+
+/* Adjust modal z-index to be above the sidebar */
+.modal {
+  z-index: 1100 !important;
+}
+
+
+.filter-sidebar {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100%;
+  background-color: #f8f9fa;
+  padding: 20px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+  transition: right 0.3s ease;
+  z-index: 1050;
+}
+.filter-sidebar.show {
+  right: 0;
+}
+
+==
+
+<div class="container-fluid">
+  <!-- Content Area (Table) -->
+  <div class="content-area" [class.sidebar-open]="filter">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+      <h4 class="text-secondary">Total Invested: ₹{{ totalinvest }}</h4>
+      <div><h2 class="text-success">paisaTrackro</h2></div>
+      <div class="btn-group">
+        <button class="btn btn-primary me-2" (click)="toggleFilter()">Toggle Filter</button>
+        <button class="btn btn-info me-2" (click)="exportToExcel()">Export Excel</button>
+        <button class="btn btn-warning me-2" (click)="exportToPDF()">Export PDF</button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Item</button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered text-center">
+        <thead class="table-light">
+          <tr>
+            <th>Item</th>
+            <th>Date</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredItems; let i = index">
+            <td>{{ item.item }}</td>
+            <td>{{ item.date | date }}</td>
+            <td>₹{{ item.price }}</td>
+            <td>{{ item.category }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="editItem(i)" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteItem(i)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sidebar (Filters) -->
+  <div class="sidebar" [class.open]="filter">
+    <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+      <h5 class="mb-0">Filter by Category</h5>
+      <button class="btn btn-sm btn-light" (click)="toggleFilter()">&times;</button>
+    </div>
+
+    <div class="p-3">
+      <div *ngFor="let cat of categories" class="form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="{{cat}}"
+          (change)="onCategoryChange($event, cat)"
+          [checked]="selectedCategories.includes(cat)"
+        />
+        <label class="form-check-label" for="{{cat}}">{{ cat }}</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Add/Edit Item -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="addItem()">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">
+            {{ editIndex !== null ? 'Update Item' : 'Add Item' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Item</label>
+            <input
+              type="text"
+              formControlName="item"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['item'].errors }"
+            />
+            <div *ngIf="submitted && f['item'].errors" class="invalid-feedback">
+              Item is required
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input
+              type="date"
+              formControlName="date"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['date'].errors }"
+            />
+            <div *ngIf="submitted && f['date'].errors" class="invalid-feedback">
+              Date is required
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Price</label>
+            <input
+              type="number"
+              formControlName="price"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['price'].errors }"
+            />
+            <div *ngIf="submitted && f['price'].errors" class="invalid-feedback">
+              Price is required
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <input
+              type="text"
+              formControlName="category"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['category'].errors }"
+            />
+            <div *ngIf="submitted && f['category'].errors" class="invalid-feedback">
+              Category is required
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">
+            {{ editIndex !== null ? 'Update' : 'Add' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+            (click)="onReset()"
+          >
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+//
+
+  /*
+  sample data
+
+  const chartData = [
+  { item: 'rice',         date: '2025-06-20', price: 100,  category: 'grocery' },
+  { item: 'milk',         date: '2025-06-20', price: 60,   category: 'grocery' },
+  { item: 'bus ticket',   date: '2025-06-20', price: 50,   category: 'travel' },
+  { item: 'movie',        date: '2025-06-20', price: 250,  category: 'entertainment' },
+  { item: 'checkup',      date: '2025-06-20', price: 300,  category: 'healthcare' },
+  { item: 'pen',          date: '2025-06-20', price: 40,   category: 'others' },
+
+  { item: 'uber',         date: '2025-06-04', price: 170,  category: 'travel' },
+  { item: 'fever',        date: '2025-06-27', price: 1000, category: 'healthcare' },
+  { item: 'groceries',    date: '2025-06-04', price: 250,  category: 'grocery' },
+  { item: 'game pass',    date: '2025-06-04', price: 399,  category: 'entertainment' },
+  { item: 'mobile cover', date: '2025-06-04', price: 199,  category: 'others' },
+
+  { item: 'vitamins',     date: '2025-06-27', price: 400,  category: 'healthcare' },
+  { item: 'bus pass',     date: '2025-06-27', price: 120,  category: 'travel' },
+  { item: 'gala tickets', date: '2025-06-27', price: 500,  category: 'entertainment' },
+  { item: 'batteries',    date: '2025-06-27', price: 80,   category: 'others' },
+  { item: 'fruits',       date: '2025-06-27', price: 120,  category: 'grocery' }
+];
+
+  */
+
