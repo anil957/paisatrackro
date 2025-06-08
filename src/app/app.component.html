@@ -118,7 +118,7 @@
               Price is required
             </div>
           </div>
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="category" class="form-label">Category</label>
             <input
               type="text"
@@ -129,7 +129,31 @@
             <div *ngIf="submitted && f['category'].errors" class="invalid-feedback">
               Category is required
             </div>
-          </div>
+          </div> -->
+         <div class="mb-3">
+  <label for="category" class="form-label">Category</label>
+  <select
+    id="category"
+    formControlName="category"
+    class="form-control"
+    [ngClass]="{ 'is-invalid': submitted && f['category'].errors }"
+  >
+    <option value="">Select a category</option>
+    <option value="housing" title="Rent, electricity, water, maintenance">Housing</option>
+    <option value="food" title="Groceries, dining out, online food">Food</option>
+    <option value="transportation">Transportation</option>
+    <option value="health_care">Health Care</option>
+    <option value="personal_care">Personal Care</option>
+    <option value="children_family">Children & Family</option>
+    <option value="technology_subscription">Technology & Subscription</option>
+    <option value="travel">Travel</option>
+    <option value="education">Education</option>
+  </select>
+  <div *ngIf="submitted && f['category'].errors" class="invalid-feedback">
+    Category is required
+  </div>
+</div>
+
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Add</button>
